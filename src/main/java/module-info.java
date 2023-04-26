@@ -1,4 +1,4 @@
-module com.example.tp2_java
+module com.example.tp3_java
 {
     requires javafx.controls;
     requires javafx.fxml;

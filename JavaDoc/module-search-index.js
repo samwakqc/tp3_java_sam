@@ -1,1 +1,0 @@
-moduleSearchIndex = [{"l":"com.example.tp2_java"}];updateSearchResults();

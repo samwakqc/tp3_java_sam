@@ -1,20 +1,25 @@
 package com.example.tp3_java;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,10 +42,14 @@ import java.util.Objects;
  */
 public class HelloController2
 {
+
+    static double startX;
+    static double startY;
+    static double endX;
+    static double endY;
     @FXML
     GridPane gridEnemy;
     Media explosion = new Media(new File("src/main/resources/com/example/tp3_java/explosionaudio.mp3").toURI().toString());
-
     Media splash = new Media(new File("src/main/resources/com/example/tp3_java/splashaudio.mp3").toURI().toString());
     MediaPlayer mediaPlayerExplosion = new MediaPlayer(explosion);
     MediaPlayer mediaPlayerSplash = new MediaPlayer(splash);
@@ -50,6 +59,9 @@ public class HelloController2
     Media loss = new Media(new File("src/main/resources/com/example/tp3_java/loss.mp3").toURI().toString());
     MediaPlayer mediaPlayerWin = new MediaPlayer(win);
     MediaPlayer mediaPlayerLoss = new MediaPlayer(loss);
+
+    Image explosionImage = new Image("src/main/resources/com/example/tp3_java/explosion.gif");
+    ImageView explosionView = new ImageView(explosionImage);
 
     static Rotate rotationVertical = new Rotate(90, 0, 0);
     static Rotate rotationHorizontal = new Rotate(270, 0, 0);
@@ -125,7 +137,8 @@ public class HelloController2
         bateau5.getTransforms().clear();
     }
 
-
+    @FXML
+    Sphere ballPane;
     @FXML
     GridPane gridEnemy1;
 
@@ -144,8 +157,29 @@ public class HelloController2
         Stage window = (Stage) bateau2.getScene().getWindow();
         window.setScene(scene);
         GridPane rootGridEnemy = (GridPane) root.lookup("#gridEnemy1");
+        GridPane rootGridJoueur = (GridPane) root.lookup("#gridEnemy");
         gridEnemy1 = rootGridEnemy;
+        gridEnemy = rootGridJoueur;
         placementBateauJoueur();
+    }
+
+    protected void timeline()
+    {
+        // Création de la timeline pour animer le déplacement de la balle
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO, e -> {
+                    // À l'instant initial, la balle est en position de départ
+                    ballPane.setTranslateX(startX);
+                    ballPane.setTranslateY(startY);
+                }),
+                new KeyFrame(Duration.seconds(2), e -> {
+                    // Après 2 secondes, la balle est en position d'arrivée
+                    ballPane.setTranslateX(endX);
+                    ballPane.setTranslateY(endY);
+                })
+        );
+
+        timeline.play();
     }
 
     /**
@@ -317,6 +351,11 @@ public class HelloController2
                 pane.setStyle("-fx-background-color: red;");
                 mediaPlayerExplosion.play();
                 tourJoueur = false;
+                double startX = gridEnemy1.getTranslateX();
+                double startY = gridEnemy1.getTranslateY();
+                double endX = gridEnemy.getLayoutX() + (100 * x); // colonne 2
+                double endY = gridEnemy.getLayoutY() + (100 * y); // ligne 3
+                timeline();
                 jeu();
             }
             else
@@ -324,6 +363,11 @@ public class HelloController2
                 mediaPlayerSplash.play();
                 Pane pane = (Pane) gridEnemy.getChildren().get((y * 10) + x);
                 pane.setStyle("-fx-background-color: blue;");
+                double startX = gridEnemy1.getTranslateX();
+                double startY = gridEnemy1.getTranslateY();
+                double endX = gridEnemy.getLayoutX() + (100 * x); // colonne 2
+                double endY = gridEnemy.getLayoutY() + (100 * y); // ligne 3
+                timeline();
                 tourJoueur = false;
                 jeu();
             }
@@ -602,6 +646,7 @@ public class HelloController2
             Pane pane = (Pane) gridEnemy1.getChildren().get((ligne * 10) + colonne);
             pane.setStyle("-fx-background-color: red;");
             mediaPlayerExplosion.play();
+            gridEnemy.add(explosionView, ligne, colonne);
             tourJoueur = true;
         }
         else
